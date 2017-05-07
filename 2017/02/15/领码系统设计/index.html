@@ -1,0 +1,760 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="领码系统设计 1. 行业优秀实践 微信红包设计-如何扛住100亿次请求    秒杀业务架构优化之路 淘宝大秒系统设计详解 微信高并发资金交易系统设计方案-百亿红包背后技术支撑 小米抢购限流峰值系统架构解密  优秀经验总结 系统隔离与数据分治 并发请求转为队列   查询100%命中缓存   异常业务快速熔断  2. 领码系统设计2.1 领码系统服务部署 2.2 领码业务流程 3. 领码系统核心方案3">
+<meta name="keywords" content="设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="领码系统设计">
+<meta property="og:url" content="http://luang.me/2017/02/15/领码系统设计/index.html">
+<meta property="og:site_name" content="Luang&#39;s">
+<meta property="og:description" content="领码系统设计 1. 行业优秀实践 微信红包设计-如何扛住100亿次请求    秒杀业务架构优化之路 淘宝大秒系统设计详解 微信高并发资金交易系统设计方案-百亿红包背后技术支撑 小米抢购限流峰值系统架构解密  优秀经验总结 系统隔离与数据分治 并发请求转为队列   查询100%命中缓存   异常业务快速熔断  2. 领码系统设计2.1 领码系统服务部署 2.2 领码业务流程 3. 领码系统核心方案3">
+<meta property="og:image" content="http://i0.hdslb.com/bfs/game/b2b9a52fc1082efed91cc4acb87d70b6549f7d4f.png">
+<meta property="og:image" content="http://i0.hdslb.com/bfs/game/6939917839ed7ba4dd9c1fa599162560eb680318.png">
+<meta property="og:updated_time" content="2017-05-07T15:24:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="领码系统设计">
+<meta name="twitter:description" content="领码系统设计 1. 行业优秀实践 微信红包设计-如何扛住100亿次请求    秒杀业务架构优化之路 淘宝大秒系统设计详解 微信高并发资金交易系统设计方案-百亿红包背后技术支撑 小米抢购限流峰值系统架构解密  优秀经验总结 系统隔离与数据分治 并发请求转为队列   查询100%命中缓存   异常业务快速熔断  2. 领码系统设计2.1 领码系统服务部署 2.2 领码业务流程 3. 领码系统核心方案3">
+<meta name="twitter:image" content="http://i0.hdslb.com/bfs/game/b2b9a52fc1082efed91cc4acb87d70b6549f7d4f.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://luang.me/2017/02/15/领码系统设计/"/>
+
+
+
+
+
+  <title>领码系统设计 | Luang's</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Luang's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://luang.me/2017/02/15/领码系统设计/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Luang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/panda.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luang's">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">领码系统设计</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-15T10:11:28+08:00">
+                2017-02-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="领码系统设计"><a href="#领码系统设计" class="headerlink" title="领码系统设计"></a>领码系统设计</h1><hr>
+<h2 id="1-行业优秀实践"><a href="#1-行业优秀实践" class="headerlink" title="1. 行业优秀实践"></a>1. 行业优秀实践</h2><ul>
+<li><a href="http://www.woshipm.com/pd/232838.html" target="_blank" rel="external">微信红包设计-如何扛住100亿次请求</a>   </li>
+<li><a href="http://www.tuicool.com/articles/yyiQfeV" target="_blank" rel="external">秒杀业务架构优化之路</a></li>
+<li><a href="http://geek.csdn.net/news/detail/59847" target="_blank" rel="external">淘宝大秒系统设计详解</a></li>
+<li><a href="http://mp.weixin.qq.com/s/suBAJrP6uN2kFgHtGz16mw" target="_blank" rel="external">微信高并发资金交易系统设计方案-百亿红包背后技术支撑</a></li>
+<li><a href="http://www.tuicool.com/articles/e2YVRvA" target="_blank" rel="external">小米抢购限流峰值系统架构解密</a></li>
+</ul>
+<h3 id="优秀经验总结"><a href="#优秀经验总结" class="headerlink" title="优秀经验总结"></a>优秀经验总结</h3><ul>
+<li>系统隔离与数据分治</li>
+<li>并发请求转为队列  </li>
+<li>查询100%命中缓存  </li>
+<li>异常业务快速熔断</li>
+</ul>
+<h2 id="2-领码系统设计"><a href="#2-领码系统设计" class="headerlink" title="2. 领码系统设计"></a>2. 领码系统设计</h2><h3 id="2-1-领码系统服务部署"><a href="#2-1-领码系统服务部署" class="headerlink" title="2.1 领码系统服务部署"></a>2.1 领码系统服务部署</h3><p><img src="http://i0.hdslb.com/bfs/game/b2b9a52fc1082efed91cc4acb87d70b6549f7d4f.png" alt="img"></p>
+<h3 id="2-2-领码业务流程"><a href="#2-2-领码业务流程" class="headerlink" title="2.2 领码业务流程"></a>2.2 领码业务流程</h3><p><img src="http://i0.hdslb.com/bfs/game/6939917839ed7ba4dd9c1fa599162560eb680318.png" alt="img"></p>
+<h2 id="3-领码系统核心方案"><a href="#3-领码系统核心方案" class="headerlink" title="3. 领码系统核心方案"></a>3. 领码系统核心方案</h2><h3 id="3-1-业务异步化与任务队列"><a href="#3-1-业务异步化与任务队列" class="headerlink" title="3.1 业务异步化与任务队列"></a>3.1 业务异步化与任务队列</h3><ul>
+<li>领码业务异步化<ul>
+<li>结果快速响应前端，用户体验提升。  </li>
+<li>查询与实际领码业务分离，隔离99%查询业务和1%的写入业务。</li>
+</ul>
+</li>
+<li>有效请求写入队列<ul>
+<li>削峰填谷，有效利用服务器资源,降低高并发场景下服务器压力。     </li>
+<li>业务量可控，超量访问可制定响应策略。  </li>
+</ul>
+</li>
+</ul>
+<h3 id="3-2-缓存使用"><a href="#3-2-缓存使用" class="headerlink" title="3.2 缓存使用"></a>3.2 缓存使用</h3><ul>
+<li>业务读写均使用缓存，保证查询命中率100%。  </li>
+</ul>
+<h4 id="3-3-服务熔断-lt-可选-gt"><a href="#3-3-服务熔断-lt-可选-gt" class="headerlink" title="3.3 服务熔断&lt;可选&gt;"></a>3.3 服务熔断&lt;可选&gt;</h4><ul>
+<li>业务接口级别使用<ul>
+<li>接口异常时，快速响应预设结果给前端，优化用户体验。  </li>
+</ul>
+</li>
+<li>中间件依赖使用<ul>
+<li>防止客户端超时调用，占据服务器资源。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-4-隔离"><a href="#3-4-隔离" class="headerlink" title="3.4 隔离"></a>3.4 隔离</h3><ul>
+<li>系统隔离，降低领码业务对其它线上业务影响<ul>
+<li>单独申请缓存集群。  </li>
+<li>物理库拆分。  </li>
+<li>单独申请消息队列。  </li>
+<li>申请新服务器部署秒杀应用。</li>
+</ul>
+</li>
+<li>业务隔离，保障新增秒杀业务可控。<ul>
+<li>新秒杀活动上线须向开发等相关人员申请开通。</li>
+<li>开发人员应结合需求和线上资源评估可行性。</li>
+<li>不可控异常场景应及时邮件告知各相关人员。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-性能目标-lt-暂定-gt"><a href="#4-性能目标-lt-暂定-gt" class="headerlink" title="4. 性能目标&lt;暂定&gt;"></a>4. 性能目标&lt;暂定&gt;</h2><p>1.接口平均响应时间低于100ms<br>2.服务端单机QPS大于2000</p>
+<h2 id="5-第三方依赖"><a href="#5-第三方依赖" class="headerlink" title="5. 第三方依赖"></a>5. 第三方依赖</h2><ul>
+<li>缓存集群：Redis  </li>
+<li>物理库：Mysql  </li>
+<li>校验：极验证  </li>
+<li>消息队列：RabbitMQ </li>
+<li>用户校验：主站用户验证接口  </li>
+</ul>
+<h2 id="6-备忘录"><a href="#6-备忘录" class="headerlink" title="6. 备忘录"></a>6. 备忘录</h2><ul>
+<li>消息丢失场景下，用户查询一直等待中问题。  </li>
+<li>前置请求过滤链(秒杀应用按预设规则筛选请求入队)，后置请求过滤链(消费者应用按预设条件判定秒杀结果)  </li>
+<li>支持同步领取</li>
+</ul>
+<h2 id="7-开发中的问题"><a href="#7-开发中的问题" class="headerlink" title="7. 开发中的问题"></a>7. 开发中的问题</h2><ul>
+<li>1.关于分布式锁</li>
+<li>2.关于redis数据清理问题，可用落地数据(mysql中ctime早于产品清理需求)反向清理</li>
+<li>延伸，关于同步、异步、阻塞、非阻塞<a href="https://www.zhihu.com/question/19732473" target="_blank" rel="external">https://www.zhihu.com/question/19732473</a></li>
+<li>SOCEKT、TCPIP、http</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计/" rel="tag"># 设计</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/15/一次简单性能优化/" rel="next" title="一次简单性能调优">
+                <i class="fa fa-chevron-left"></i> 一次简单性能调优
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/09/领码系统压测记录/" rel="prev" title="领码系统压测">
+                领码系统压测 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/panda.jpg"
+               alt="Luang" />
+          <p class="site-author-name" itemprop="name">Luang</p>
+           
+              <p class="site-description motion-element" itemprop="description">Personal Blog</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#领码系统设计"><span class="nav-number">1.</span> <span class="nav-text">领码系统设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-行业优秀实践"><span class="nav-number">1.1.</span> <span class="nav-text">1. 行业优秀实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优秀经验总结"><span class="nav-number">1.1.1.</span> <span class="nav-text">优秀经验总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-领码系统设计"><span class="nav-number">1.2.</span> <span class="nav-text">2. 领码系统设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-领码系统服务部署"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 领码系统服务部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-领码业务流程"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 领码业务流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-领码系统核心方案"><span class="nav-number">1.3.</span> <span class="nav-text">3. 领码系统核心方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-业务异步化与任务队列"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 业务异步化与任务队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-缓存使用"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 缓存使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-服务熔断-lt-可选-gt"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">3.3 服务熔断<可选></span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-隔离"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.4 隔离</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-性能目标-lt-暂定-gt"><span class="nav-number">1.4.</span> <span class="nav-text">4. 性能目标<暂定></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-第三方依赖"><span class="nav-number">1.5.</span> <span class="nav-text">5. 第三方依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-备忘录"><span class="nav-number">1.6.</span> <span class="nav-text">6. 备忘录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-开发中的问题"><span class="nav-number">1.7.</span> <span class="nav-text">7. 开发中的问题</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

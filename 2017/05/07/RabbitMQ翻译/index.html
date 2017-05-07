@@ -1,0 +1,700 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="介绍RabbitMQ是一种消息中间件。它的核心思想很简单，接收并传递消息。你可以把RabbitMQ想象成邮局：当你把信扔进信箱后，你十分确信邮递员会准确的把信交给收件人。在这个比喻里，RabbitMQ就是邮箱、邮局和邮递员的集合。RabbitMQ和邮局主要的区别在于，RabbitMQ处理的不是纸质邮件，而是二进制的数据(Messages) 接下来用较为专业的术语解释RabbitMQ以及消息传递。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Luang&#39;s">
+<meta property="og:url" content="http://luang.me/2017/05/07/RabbitMQ翻译/index.html">
+<meta property="og:site_name" content="Luang&#39;s">
+<meta property="og:description" content="介绍RabbitMQ是一种消息中间件。它的核心思想很简单，接收并传递消息。你可以把RabbitMQ想象成邮局：当你把信扔进信箱后，你十分确信邮递员会准确的把信交给收件人。在这个比喻里，RabbitMQ就是邮箱、邮局和邮递员的集合。RabbitMQ和邮局主要的区别在于，RabbitMQ处理的不是纸质邮件，而是二进制的数据(Messages) 接下来用较为专业的术语解释RabbitMQ以及消息传递。">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/producer.png">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/queue.png">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/consumer.png">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/python-one.png">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/sending.png">
+<meta property="og:image" content="http://www.rabbitmq.com/img/tutorials/receiving.png">
+<meta property="og:updated_time" content="2017-05-07T15:08:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Luang&#39;s">
+<meta name="twitter:description" content="介绍RabbitMQ是一种消息中间件。它的核心思想很简单，接收并传递消息。你可以把RabbitMQ想象成邮局：当你把信扔进信箱后，你十分确信邮递员会准确的把信交给收件人。在这个比喻里，RabbitMQ就是邮箱、邮局和邮递员的集合。RabbitMQ和邮局主要的区别在于，RabbitMQ处理的不是纸质邮件，而是二进制的数据(Messages) 接下来用较为专业的术语解释RabbitMQ以及消息传递。">
+<meta name="twitter:image" content="http://www.rabbitmq.com/img/tutorials/producer.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://luang.me/2017/05/07/RabbitMQ翻译/"/>
+
+
+
+
+
+  <title> | Luang's</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Luang's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://luang.me/2017/05/07/RabbitMQ翻译/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Luang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/panda.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luang's">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-07T23:09:00+08:00">
+                2017-05-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>RabbitMQ是一种消息中间件。它的核心思想很简单，接收并传递消息。你可以把RabbitMQ想象成邮局：当你把信扔进信箱后，你十分确信邮递员会准确的把信交给收件人。在这个比喻里，RabbitMQ就是邮箱、邮局和邮递员的集合。<br>RabbitMQ和邮局主要的区别在于，RabbitMQ处理的不是纸质邮件，而是二进制的数据(Messages)</p>
+<p>接下来用较为专业的术语解释RabbitMQ以及消息传递。  </p>
+<p>Producing指的是只做发送操作，其余什么也不干。自然而然,Producer就是只发消息的程序。我们用P指代Producer。  </p>
+<p><img src="http://www.rabbitmq.com/img/tutorials/producer.png" alt="image"></p>
+<p>Queue等同于邮箱的意思，它存在于RabbitMQ当中。当消息穿过RabbitMQ到达你的应用程序期间，它们全部都保存在Queue当中。Queue的大小没有限制，你想存多少就存多少-它基本等同于一个容量无限的缓存。大量Producer往里发送消息，大量Consumer从同一个队列里取消息。我们用个图来展示下。  </p>
+<p><img src="http://www.rabbitmq.com/img/tutorials/queue.png" alt="image"></p>
+<p>Consuming与接收的含义非常接近。Consumer这类程序主要功能就是接收消息。我们画个C。  </p>
+<p><img src="http://www.rabbitmq.com/img/tutorials/consumer.png" alt="image"></p>
+<p>注意Producer，Consumer以及Broker可能不在同一台主机中；实际大多数情况下，它们都分布在不同的主机中。</p>
+<h1 id="“Hello-World”"><a href="#“Hello-World”" class="headerlink" title="“Hello World”"></a>“Hello World”</h1><h2 id="Using-the-Java-Client"><a href="#Using-the-Java-Client" class="headerlink" title="Using the Java Client"></a>Using the Java Client</h2><p>在这部分内容中，我们会写两个JAVA程序；<br>第一个如下：<br>Producer发送一条消息，Consumer接收消息并打印。让我们暂时忽视JAVA API的实现细节，集中注意力从简单的调用开始，发一条“Hello World”的消息。<br>在下方的图中，“P”代表Producer，“C”代表Consumer，中间的红色方块代表Queue(Rabbit为Consumer持有的消息缓存)  </p>
+<p><img src="http://www.rabbitmq.com/img/tutorials/python-one.png" alt="image"></p>
+<h3 id="Java版RabbitMQ客户端"><a href="#Java版RabbitMQ客户端" class="headerlink" title="Java版RabbitMQ客户端"></a>Java版RabbitMQ客户端</h3><p>RabbitMQ使用多种协议。在本部分示例中，采用的是AMQP 0-9-1协议，它是一种开放的、多功能的消息传递协议。同时，RabbitMQ客户端的实现语言也种类繁多，在这里我们选用JAVA版本。<br>下载安装包，检查签名，解压到你指定的路径 巴拉巴拉~~~<br>现在我们开始写代码。  </p>
+<h1 id="Sending"><a href="#Sending" class="headerlink" title="Sending"></a>Sending</h1><p><img src="http://www.rabbitmq.com/img/tutorials/sending.png" alt="image">  </p>
+<p>我们称消息发送者为Send，接收者为Recv。Send会连接RabbitMQ，发送一条简短的消息，然后退出。</p>
+<p>我们需要导入以下class文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">import com.rabbitmq.client.ConnectionFactory;</div><div class="line">import com.rabbitmq.client.Connection;</div><div class="line">import com.rabbitmq.client.Channel;</div></pre></td></tr></table></figure>
+<p>建立类文件并且命名队列。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class Send &#123;</div><div class="line">  private final static String QUEUE_NAME = &quot;hello&quot;;</div><div class="line"></div><div class="line">  public static void main(String[] argv)</div><div class="line">      throws java.io.IOException &#123;</div><div class="line">      ...</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们创建一个到服务器的连接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ConnectionFactory factory = new ConnectionFactory();</div><div class="line">factory.setHost(&quot;localhost&quot;);</div><div class="line">Connection connection = factory.newConnection();</div><div class="line">Channel channel = connection.createChannel();</div></pre></td></tr></table></figure>
+<p>Connection掩盖了套接字实现的细节，让我们能专注于选择协议版本和认证以及其他重要的事情上。我们连接本机的broker，下文中我们简称为localhost。我们只需要修改IP地址就能简单的连上其他主机上的broker。  </p>
+<p>接下来我们创建一个channel，它包含大量我们常用的API。</p>
+<p>为了发送消息，我们需要声明一个队列；然后我们向队列中发送消息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">channel.queueDeclare(QUEUE_NAME, false, false, false, null);</div><div class="line">String message = &quot;Hello World!&quot;;</div><div class="line">channel.basicPublish(&quot;&quot;, QUEUE_NAME, null, message.getBytes());</div><div class="line">System.out.println(&quot; [x] Sent &apos;&quot; + message + &quot;&apos;&quot;);</div></pre></td></tr></table></figure>
+<p>声明队列是幂等的，只有当队列不存在时，它才会被创建(吐槽，不就是单例嘛。。。)。消息内容是字节数组，你可以随心所以编码它。  </p>
+<p>最后，别忘记关掉连接。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">channel.close();</div><div class="line">connection.close();</div></pre></td></tr></table></figure>
+<p>以上就是整个Send.java的内容。  </p>
+<p>发送无效怎么办？<br>如果你第一次使用RabbitMQ并且没有看见发送的消息，你肯定会对这种不知所措的感觉印象深刻。也许是broker没有足够的磁盘空间(默认需要1G)导致拒绝接收消息。通过检查broker的日志文件来判断是否需要降低磁盘需求。<a href="http://www.rabbitmq.com/configure.html#config-items" target="_blank" rel="external"> configuration file documentation</a>会教你怎样设置disk_free_limit。  </p>
+<h1 id="Receving"><a href="#Receving" class="headerlink" title="Receving"></a>Receving</h1><p>接下来是reciver，它被RabbitMQ塞入消息。同时，reciver实现起来也比sender复杂，我们需要它监听消息，直到接收并打印出来。  </p>
+<p><img src="http://www.rabbitmq.com/img/tutorials/receiving.png" alt="image">  </p>
+<p>像写sender一样，这里我们也需要引入很多依赖的代码。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">import com.rabbitmq.client.ConnectionFactory;</div><div class="line">import com.rabbitmq.client.Connection;</div><div class="line">import com.rabbitmq.client.Channel;</div><div class="line">import com.rabbitmq.client.Consumer;</div><div class="line">import com.rabbitmq.client.DefaultConsumer;</div></pre></td></tr></table></figure>
+<p>引入的代码中，DefaultConsumer是一个实现了Consumer接口的类，我们会用它来保存RabbitMQ推送的消息。<br>类似Sender一样构建代码；我们打开Connection和Channel,声明将要消费的队列。注意队列名称需要与发送的队列相同。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public class Recv &#123;</div><div class="line">  private final static String QUEUE_NAME = &quot;hello&quot;;</div><div class="line"></div><div class="line">  public static void main(String[] argv)</div><div class="line">      throws java.io.IOException,</div><div class="line">             java.lang.InterruptedException &#123;</div><div class="line"></div><div class="line">    ConnectionFactory factory = new ConnectionFactory();</div><div class="line">    factory.setHost(&quot;localhost&quot;);</div><div class="line">    Connection connection = factory.newConnection();</div><div class="line">    Channel channel = connection.createChannel();</div><div class="line"></div><div class="line">    channel.queueDeclare(QUEUE_NAME, false, false, false, null);</div><div class="line">    System.out.println(&quot; [*] Waiting for messages. To exit press CTRL+C&quot;);</div><div class="line">    ...</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意，我们在这里也许要声明队列，是因为我们也许在启动sender前就启动了reciver。我们需要确保在消费消息前，队列已经存在。<br>接下来我们要告诉RabbitMQ,让它把队列中的消息发给我们。由于它通过异步的方式推送消息，我们在形式上先用一个变量保存消息直到我们实际使用它。这也是DefaultConsumer子类所做的工作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Consumer consumer = new DefaultConsumer(channel) &#123;</div><div class="line">  @Override</div><div class="line">  public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)</div><div class="line">      throws IOException &#123;</div><div class="line">    String message = new String(body, &quot;UTF-8&quot;);</div><div class="line">    System.out.println(&quot; [x] Received &apos;&quot; + message + &quot;&apos;&quot;);</div><div class="line">  &#125;</div><div class="line">&#125;;</div><div class="line">channel.basicConsume(QUEUE_NAME, true, consumer);</div></pre></td></tr></table></figure>
+<p>以上就是整个Recv.java的代码。  </p>
+<h1 id="Putting-it-all-together"><a href="#Putting-it-all-together" class="headerlink" title="Putting it all together"></a>Putting it all together</h1><p>你可以将这两段代码同rabbitMQ客户端代码一起编译。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ javac -cp rabbitmq-client.jar Send.java Recv.java</div></pre></td></tr></table></figure>
+<p>为了运行他们，你需要rabbitmq-client.jar并且它依赖于classpath。在终端上，运行sender：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ java -cp .:commons-io-1.2.jar:commons-cli-1.1.jar:rabbitmq-client.jar Send</div><div class="line">```  </div><div class="line">然后，运行receiver；</div></pre></td></tr></table></figure>
+<p>$ java -cp .:commons-io-1.2.jar:commons-cli-1.1.jar:rabbitmq-client.jar Recv<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">在Windows环境下，在classpath中用分号代替冒号分离它们  </div><div class="line">当receiver从RabbitMQ中获取消息后会将其打印出来。recevier会一直运行并等待新的消息，因此我们在另一个终端中启动sender。  </div><div class="line"></div><div class="line">如果你想检查队列，尝试使用 rabbitmqctl list_queues  </div><div class="line"></div><div class="line">hello   </div><div class="line"></div><div class="line">是时候看看Part2，构建一个简单的工作队列。  </div><div class="line"></div><div class="line">小秘密：  </div><div class="line">为了减少打字，你可以为classpath设置环境变量，例如</div></pre></td></tr></table></figure></p>
+<p>$ export CP=.:commons-io-1.2.jar:commons-cli-1.1.jar:rabbitmq-client.jar<br> $ java -cp $CP Send<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">windows环境下</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>set CP=.;commons-io-1.2.jar;commons-cli-1.1.jar;rabbitmq-client.jar<br>java -cp %CP% Send<br>```</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/panda.jpg"
+               alt="Luang" />
+          <p class="site-author-name" itemprop="name">Luang</p>
+           
+              <p class="site-description motion-element" itemprop="description">Personal Blog</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#“Hello-World”"><span class="nav-number">2.</span> <span class="nav-text">“Hello World”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Using-the-Java-Client"><span class="nav-number">2.1.</span> <span class="nav-text">Using the Java Client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java版RabbitMQ客户端"><span class="nav-number">2.1.1.</span> <span class="nav-text">Java版RabbitMQ客户端</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sending"><span class="nav-number">3.</span> <span class="nav-text">Sending</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Receving"><span class="nav-number">4.</span> <span class="nav-text">Receving</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Putting-it-all-together"><span class="nav-number">5.</span> <span class="nav-text">Putting it all together</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,721 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hystrix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="Hystrix快速使用篇1. 什么是HystrixIn a distributed environment, inevitably some of the many service dependencies will fail. Hystrix is a library that helps you control the interactions between these distribute">
+<meta name="keywords" content="Hystrix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hystrix快速使用篇">
+<meta property="og:url" content="http://luang.me/2017/05/09/Hystrix快速使用篇/index.html">
+<meta property="og:site_name" content="Luang&#39;s">
+<meta property="og:description" content="Hystrix快速使用篇1. 什么是HystrixIn a distributed environment, inevitably some of the many service dependencies will fail. Hystrix is a library that helps you control the interactions between these distribute">
+<meta property="og:image" content="http://i0.hdslb.com/bfs/game/836b252644340fecd90ae4fc72b1ae95dfaf75f5.png">
+<meta property="og:image" content="http://i0.hdslb.com/bfs/game/10e0ebe0d2fd626e6ad606fe5a2b59b44dab2322.png">
+<meta property="og:updated_time" content="2017-05-09T12:51:52.681Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hystrix快速使用篇">
+<meta name="twitter:description" content="Hystrix快速使用篇1. 什么是HystrixIn a distributed environment, inevitably some of the many service dependencies will fail. Hystrix is a library that helps you control the interactions between these distribute">
+<meta name="twitter:image" content="http://i0.hdslb.com/bfs/game/836b252644340fecd90ae4fc72b1ae95dfaf75f5.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://luang.me/2017/05/09/Hystrix快速使用篇/"/>
+
+
+
+
+
+  <title>Hystrix快速使用篇 | Luang's</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Luang's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://luang.me/2017/05/09/Hystrix快速使用篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Luang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/panda.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Luang's">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hystrix快速使用篇</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-09T20:51:28+08:00">
+                2017-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Hystrix快速使用篇"><a href="#Hystrix快速使用篇" class="headerlink" title="Hystrix快速使用篇"></a>Hystrix快速使用篇</h1><h2 id="1-什么是Hystrix"><a href="#1-什么是Hystrix" class="headerlink" title="1. 什么是Hystrix"></a>1. 什么是Hystrix</h2><p>In a distributed environment, inevitably some of the many service dependencies will fail. Hystrix is a library that helps you control the interactions between these distributed services by adding latency tolerance and fault tolerance logic. Hystrix does this by isolating points of access between the services, stopping cascading failures across them, and providing fallback options, all of which improve your system’s overall resiliency.<br><a href="https://github.com/Netflix/Hystrix/wiki" target="_blank" rel="external">from hystrix官方文档</a></p>
+<h2 id="2-Hystrix优缺点"><a href="#2-Hystrix优缺点" class="headerlink" title="2. Hystrix优缺点"></a>2. Hystrix优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><strong>熔断与恢复</strong>:依赖服务A异常时切换至备份服务B，A恢复后自动回切。</li>
+<li><strong>异常记录</strong>:触发熔断原因可记录日志</li>
+<li><strong>流量控制</strong>:可限制依赖服务A被调用频率</li>
+<li><strong>实时监控</strong>:实时监控服务A状态(平均响应时间,调用次数等)</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li><strong>代码复杂度</strong>:引入额外中间件，增加编码复杂度</li>
+<li><strong>性能损耗</strong>:官方文档标明会损耗1%~5%的服务器性能(数据统计与线程池管理)</li>
+</ul>
+<h2 id="3-Spring3-x-amp-amp-4-x接入Demo-Code"><a href="#3-Spring3-x-amp-amp-4-x接入Demo-Code" class="headerlink" title="3. Spring3.x &amp;&amp; 4.x接入Demo Code"></a>3. Spring3.x &amp;&amp; 4.x接入Demo Code</h2><ul>
+<li><p><strong>Pom.xml</strong><br>添加Hystrix依赖，core提供核心熔断功能，javanica提供注解实现方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">	&lt;groupId&gt;com.netflix.hystrix&lt;/groupId&gt;</div><div class="line">	&lt;artifactId&gt;hystrix-core&lt;/artifactId&gt;</div><div class="line">	&lt;version&gt;1.5.11&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">	&lt;groupId&gt;com.netflix.hystrix&lt;/groupId&gt;</div><div class="line">	&lt;artifactId&gt;hystrix-javanica&lt;/artifactId&gt;</div><div class="line">	&lt;version&gt;1.5.11&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Aop</strong><br>通过注解实现熔断，需增加此Aop。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;bean id=&quot;hystrixAspect&quot; class=&quot;com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect&quot;&gt;&lt;/bean&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>HystrixCommand</strong><br>通过注解方式添加熔断器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">@HystrixCommand(fallbackMethod = &quot;methodAFallback&quot;)</div><div class="line">public String methodA(String param1,String param2) &#123;...&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>FallbackMethod</strong><br>实现备份方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public String methodAFallback(String param1,String param2) &#123;...&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="4-Hystrix性能配置"><a href="#4-Hystrix性能配置" class="headerlink" title="4. Hystrix性能配置"></a>4. Hystrix性能配置</h2><p>更多性能配置请参考github官方文档。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * &lt;ul&gt;</div><div class="line"> * &lt;li&gt;execution.isolation.thread.timeoutInMilliseconds|执行超时时间|default:1000&lt;/li&gt;</div><div class="line"> * &lt;li&gt;circuitBreaker.requestVolumeThreshold|触发断路最低请求数|default:20&lt;/li&gt;</div><div class="line"> * &lt;li&gt;circuitBreaker.sleepWindowInMilliseconds|断路器恢复时间|default:5000&lt;/li&gt;</div><div class="line"> * &lt;li&gt;circuitBreaker.errorThresholdPercentage|触发短路错误率,单位%|default:50&lt;/li&gt;</div><div class="line"> * &lt;li&gt;coreSize|线程池核心数|default:10&lt;/li&gt;</div><div class="line"> * &lt;li&gt;maxQueueSize|队列长度|default:-1(SynchronousQueue)&lt;/li&gt;</div><div class="line"> * &lt;li&gt;queueSizeRejectionThreshold|队满拒绝服务阈值|default:5|此值生效优先于队满&lt;/li&gt;</div><div class="line"> * &lt;li&gt;metrics.rollingStats.timeInMilliseconds|窗口维持时间|默认10000&lt;/li&gt;</div><div class="line"> * &lt;li&gt;metrics.rollingPercentile.numBuckets|窗口拆分数|默认10&lt;/li&gt;</div><div class="line"> * &lt;/ul&gt;</div><div class="line"> * </div><div class="line"> * @param e</div><div class="line"> * @return</div><div class="line"> */</div><div class="line">@Override</div><div class="line">@SuppressWarnings(&quot;all&quot;)</div><div class="line">@HystrixCommand(fallbackMethod = &quot;getStaticGameServer&quot;, commandProperties = &#123;</div><div class="line">        @HystrixProperty(name = &quot;execution.isolation.thread.timeoutInMilliseconds&quot;, value = &quot;100&quot;),</div><div class="line">        @HystrixProperty(name = &quot;circuitBreaker.requestVolumeThreshold&quot;, value = &quot;50&quot;) &#125;, threadPoolProperties = &#123;</div><div class="line">                @HystrixProperty(name = &quot;coreSize&quot;, value = &quot;10&quot;),</div><div class="line">                @HystrixProperty(name = &quot;maxQueueSize&quot;, value = &quot;20&quot;),</div><div class="line">                @HystrixProperty(name = &quot;queueSizeRejectionThreshold&quot;, value = &quot;15&quot;),</div><div class="line">                @HystrixProperty(name = &quot;metrics.rollingStats.numBuckets&quot;, value = &quot;12&quot;),</div><div class="line">                @HystrixProperty(name = &quot;metrics.rollingStats.timeInMilliseconds&quot;, value = &quot;1440&quot;) &#125;)</div><div class="line">public List&lt;BlhxServer&gt; getBlhxIosGameServer() throws Exception &#123;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="5-HystrixMonitor"><a href="#5-HystrixMonitor" class="headerlink" title="5. HystrixMonitor"></a>5. HystrixMonitor</h2><ul>
+<li><p><strong>Pom.xml</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">	&lt;groupId&gt;com.netflix.hystrix&lt;/groupId&gt;</div><div class="line">	&lt;artifactId&gt;hystrix-metrics-event-stream&lt;/artifactId&gt;</div><div class="line">	&lt;version&gt;1.5.11&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Web.xml</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;servlet&gt;</div><div class="line">    &lt;description&gt;&lt;/description&gt;</div><div class="line">    &lt;display-name&gt;HystrixMetricsStreamServlet&lt;/display-name&gt;</div><div class="line">    &lt;servlet-name&gt;HystrixMetricsStreamServlet&lt;/servlet-name&gt;</div><div class="line">    &lt;servlet-class&gt;com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet&lt;/servlet-class&gt;</div><div class="line">&lt;/servlet&gt;</div><div class="line">&lt;servlet-mapping&gt;</div><div class="line">    &lt;servlet-name&gt;HystrixMetricsStreamServlet&lt;/servlet-name&gt;</div><div class="line">    &lt;url-pattern&gt;/hystrix.stream&lt;/url-pattern&gt;</div><div class="line">&lt;/servlet-mapping&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>How to test</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl http:ip:port/hystrix.stream</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>monitor</strong>  </p>
+</li>
+</ul>
+<p><img src="http://i0.hdslb.com/bfs/game/836b252644340fecd90ae4fc72b1ae95dfaf75f5.png" alt="img"><br><img src="http://i0.hdslb.com/bfs/game/10e0ebe0d2fd626e6ad606fe5a2b59b44dab2322.png" alt="img"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hystrix/" rel="tag"># Hystrix</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/09/领码系统压测记录/" rel="next" title="领码系统压测">
+                <i class="fa fa-chevron-left"></i> 领码系统压测
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/panda.jpg"
+               alt="Luang" />
+          <p class="site-author-name" itemprop="name">Luang</p>
+           
+              <p class="site-description motion-element" itemprop="description">Personal Blog</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hystrix快速使用篇"><span class="nav-number">1.</span> <span class="nav-text">Hystrix快速使用篇</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-什么是Hystrix"><span class="nav-number">1.1.</span> <span class="nav-text">1. 什么是Hystrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Hystrix优缺点"><span class="nav-number">1.2.</span> <span class="nav-text">2. Hystrix优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">1.2.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">1.2.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Spring3-x-amp-amp-4-x接入Demo-Code"><span class="nav-number">1.3.</span> <span class="nav-text">3. Spring3.x && 4.x接入Demo Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Hystrix性能配置"><span class="nav-number">1.4.</span> <span class="nav-text">4. Hystrix性能配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-HystrixMonitor"><span class="nav-number">1.5.</span> <span class="nav-text">5. HystrixMonitor</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
